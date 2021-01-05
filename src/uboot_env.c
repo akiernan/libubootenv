@@ -59,13 +59,16 @@ static const char *lockname = "/var/lock/fw_printenv.lock";
 static int libuboot_lock(struct uboot_ctx *ctx)
 {
 	int lockfd = -1;
-	lockfd = open(lockname, O_WRONLY | O_CREAT | O_TRUNC, 0666);
-	if (lockfd < 0) {
-		return -EBUSY;
-	}
-	if (flock(lockfd, LOCK_EX) < 0) {
-		close(lockfd);
-		return -EIO;
+
+	if (ctx->lockname) {
+		lockfd = open(ctx->lockname, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+		if (lockfd < 0) {
+			return -EBUSY;
+		}
+		if (flock(lockfd, LOCK_EX) < 0) {
+			close(lockfd);
+			return -EIO;
+		}
 	}
 
 	ctx->lock = lockfd;
@@ -1410,6 +1413,12 @@ void *libuboot_iterator(struct uboot_ctx *ctx, void *next)
 		return ((struct var_entry *)next)->next.le_next;
 }
 
+int libuboot_set_lockname(struct uboot_ctx *ctx, const char *lockname)
+{
+	ctx->lockname = lockname;
+	return 0;
+}
+
 int libuboot_configure(struct uboot_ctx *ctx,
 			struct uboot_env_device *envdevs)
 {
@@ -1455,6 +1464,7 @@ int libuboot_initialize(struct uboot_ctx **out,
 		return -ENOMEM;
 
 	ctx->valid = false;
+	libuboot_set_lockname(ctx, lockname);
 	ret = libuboot_configure(ctx, envdevs);
 
 	if (ret < 0) {

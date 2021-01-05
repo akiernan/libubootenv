@@ -41,6 +41,14 @@ struct uboot_env_device {
  */
 int libuboot_read_config(struct uboot_ctx *ctx, const char *config);
 
+/** @brief Set path to the lockfile
+ *
+ * @param[in] ctx libuboot context
+ * @param[in] lockname path to the lockfile (or NULL to disable locking)
+ * @return 0 in case of success, else negative value
+ */
+int libuboot_set_lockname(struct uboot_ctx *ctx, const char *lockname);
+
 /** @brief Read U-Boot environment configuration from structure
  *
  * @param[in] ctx libuboot context

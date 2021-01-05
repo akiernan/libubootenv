@@ -123,4 +123,6 @@ struct uboot_ctx {
 	int lock;
 	/** pointer to the internal db */
 	struct vars varlist;
+	/** path to the lock file */
+	const char *lockname;
 };
